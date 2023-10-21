@@ -1,10 +1,16 @@
 import http from 'node:http'
 import { routes } from './routes.js'
+import { Database } from './database.js'
+import { convertStream } from './middlewares/convert.js'
 
 const port = 3333
 
-const api = http.createServer((request, response) => {
+export const tasks = new Database('tasks')
+
+const api = http.createServer(async (request, response) => {
     const {method, url} = request
+
+    await convertStream(request)    
 
     const route = routes.find((route => {
         return route.method === method && route.path.test(url)
@@ -12,6 +18,9 @@ const api = http.createServer((request, response) => {
 
     if(route) {
         route.handle(request, response)
+    } else {
+        response.writeHead(500)
+        response.end("Erro interno")
     }
 
 }).listen(port, () => console.log(`Executando na porta ${port}`))
