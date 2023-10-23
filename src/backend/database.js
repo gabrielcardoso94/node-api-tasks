@@ -33,4 +33,34 @@ export class Database {
 
         this.#persist()
     }
+
+    update(table, id, task) {                
+        const index = this.#database[table].findIndex(task => task.id === id)
+
+        if(index > -1) {
+            this.#database[table].splice(index, index, task)
+
+            return "Ok"
+        } else {
+
+            return undefined
+        }
+        
+    }
+
+    delete(table, id) {
+        const index = this.#database[table].findIndex(task => task.id === id)
+
+        if(index > -1) {
+            const tasksWithoutTheDeleted = this.#database[table].filter(task => task.id !== id)
+            this.#database[table] = tasksWithoutTheDeleted
+            
+            this.#persist()
+
+            return "Ok"
+        } else {
+            return undefined
+        }
+
+    }
 }

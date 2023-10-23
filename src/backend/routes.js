@@ -7,7 +7,7 @@ export const routes = [
         method: 'GET',
         path: regex('/tasks'),
         handle: (request, response) => {
-            const url = request.url
+            const {url} = request
             const table = url.replace("/", "")
             const tasksList = tasks.read(table)
 
@@ -20,7 +20,7 @@ export const routes = [
         path: regex('/tasks'),
         handle: (request, response) => {
             const {title, description} = request.body
-            const url = request.url
+            const {url} = request
             const table = url.replace("/", "")
             const task = new Task(title, description)
             
@@ -34,14 +34,42 @@ export const routes = [
         method: 'PUT',
         path: regex('/tasks/:id'),
         handle: (request, response) => {
-            response.end("Rota PUT encontrada.")
+            const {url} = request
+            const {id} = request.params
+            const table = url.match('(?<table>[a-z]+)').groups.table
+            const task = request.body
+            task.updated_at = new Date().toISOString()
+
+            const result = tasks.update(table, id, task)
+
+            if(result) {
+                response.writeHead(204)
+                response.end()
+            } else {
+                response.writeHead(400)
+                response.end("ID não encontrado")
+            }
+
+            
         }
     },
     {
         method: 'DELETE',
         path: regex('/tasks/:id'),
         handle: (request, response) => {
-            response.end("Rota DELETE encontrada.")
+            const {url} = request            
+            const {id} = request.params
+            const table = url.match('(?<table>[a-z]+)').groups.table
+
+            const result = tasks.delete(table, id)
+
+            if(result) {
+                response.writeHead(204)
+                response.end()
+            } else {
+                response.writeHead(400)
+                response.end("ID não encontrado")
+            }
         }
     }
 ]
