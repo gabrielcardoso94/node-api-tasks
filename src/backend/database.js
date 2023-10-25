@@ -6,6 +6,7 @@ export class Database {
 
     constructor (table) {
         this.#loadBase(table)
+        
     }
 
     #loadBase(table) {
@@ -38,14 +39,30 @@ export class Database {
         const index = this.#database[table].findIndex(task => task.id === id)
 
         if(index > -1) {
-            this.#database[table].splice(index, index, task)
+            const databaseUpdated = this.#database[table].filter(task => task.id !== id)
+            databaseUpdated.push(task)
 
-            return "Ok"
-        } else {
+            this.#database[table] = databaseUpdated
 
-            return undefined
+            this.#persist()
+
+            return 1
         }
         
+    }
+
+    patch(table, id) {
+        const index = this.#database[table].findIndex(task => task.id === id)
+
+        if(index > -1) {
+            this.#database[table].find(task => {
+                if(task.id === id) task.completed_at = new Date().toISOString()
+            })
+
+            this.#persist()
+
+            return 1
+        }
     }
 
     delete(table, id) {
@@ -57,9 +74,7 @@ export class Database {
             
             this.#persist()
 
-            return "Ok"
-        } else {
-            return undefined
+            return 1
         }
 
     }

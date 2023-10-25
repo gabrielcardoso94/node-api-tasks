@@ -1,11 +1,8 @@
 import http from 'node:http'
 import { routes } from './routes.js'
-import { Database } from './database.js'
 import { convertStream } from './middlewares/convert.js'
 
 const port = 3333
-
-export const tasks = new Database('tasks')
 
 const api = http.createServer(async (request, response) => {
     const {method, url} = request
@@ -19,6 +16,9 @@ const api = http.createServer(async (request, response) => {
     if(route) {
         const params = route.path.exec(url)
         request.params = params.groups
+        request.query = request.params.query ? request.params.query : {}
+        console.log(request.query)
+        request.table = url.match('(?<table>[a-z]+)').groups.table
 
         route.handle(request, response)
     } else {

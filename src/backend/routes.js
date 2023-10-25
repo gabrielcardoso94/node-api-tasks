@@ -1,14 +1,16 @@
-import { tasks } from "./server.js"
 import { regex } from "./utils/regex.js"
 import { Task } from "./../rules/models/task.js"
+import { Database } from "./database.js"
+
+const tasks = new Database('tasks')
 
 export const routes = [
     {
         method: 'GET',
         path: regex('/tasks'),
         handle: (request, response) => {
-            const {url} = request
-            const table = url.replace("/", "")
+            const {table} = request
+
             const tasksList = tasks.read(table)
 
             response.writeHead(200, {'Content-Type': 'application/json'})
@@ -21,9 +23,9 @@ export const routes = [
         handle: (request, response) => {
             
             if(request.body && request.body.title.length > 0 && request.body.description.length > 0) {
+                const {table} = request
                 const {title, description} = request.body
-                const {url} = request
-                const table = url.replace("/", "")
+
                 const task = new Task(title, description)
                     
                 tasks.create(table, task)
@@ -41,10 +43,9 @@ export const routes = [
         path: regex('/tasks/:id'),
         handle: (request, response) => {
             
-            if(request.body && request.body.title.length > 0 && request.body.description.length > 0) {
-                const {url} = request
+            if(request.body && request.body.title.length && request.body.description.length) {
+                const {table} = request
                 const {id} = request.params
-                const table = url.match('(?<table>[a-z]+)').groups.table
                 const task = request.body
                 task.updated_at = new Date().toISOString()
 
@@ -66,12 +67,29 @@ export const routes = [
         }
     },
     {
+        method: 'PATCH',
+        path: regex('/tasks/:id/complete'),
+        handle: (request, response) => {
+            const {table} = request
+            const {id} = request.params
+
+            const result = tasks.patch(table, id)
+
+            if(result) {
+                response.writeHead(204)
+                response.end()
+            } else {
+                response.writeHead(400)
+                response.end("ID não encontrado")
+            }
+        }
+    },
+    {
         method: 'DELETE',
         path: regex('/tasks/:id'),
         handle: (request, response) => {
-            const {url} = request            
+            const {table} = request            
             const {id} = request.params
-            const table = url.match('(?<table>[a-z]+)').groups.table
 
             const result = tasks.delete(table, id)
 
