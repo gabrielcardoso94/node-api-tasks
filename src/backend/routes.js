@@ -11,10 +11,21 @@ export const routes = [
         handle: (request, response) => {
             const {table} = request
 
-            const tasksList = tasks.read(table)
+            if(request.query) {
+                const {search} = request.query
+                const tasksList = tasks.read(table, search)
 
-            response.writeHead(200, {'Content-Type': 'application/json'})
-            response.end(JSON.stringify(tasksList))
+                response.writeHead(200, {'Content-Type': 'application/json'})
+                response.end(JSON.stringify(tasksList))
+            } else {
+                const search = 0
+
+                const tasksList = tasks.read(table, search)
+
+                response.writeHead(200, {'Content-Type': 'application/json'})
+                response.end(JSON.stringify(tasksList))
+            }
+            
         }
     },
     {

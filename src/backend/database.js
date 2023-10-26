@@ -23,8 +23,14 @@ export class Database {
         fs.writeFile(this.#path, JSON.stringify(this.#database), {encoding: 'utf8'}, (err) => console.log(err))
     }
 
-    read(table) {
+    read(table, search) {
         const tasks = this.#database[table]
+
+        if(search) {
+            const tasksFiltered = tasks.filter((task) => task.title.toLowerCase().includes(search) || task.description.toLowerCase().includes(search))
+
+            return tasksFiltered
+        }
 
         return tasks
     }
