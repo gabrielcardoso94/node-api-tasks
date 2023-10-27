@@ -20,7 +20,7 @@ export class Database {
     }
 
     #persist() {
-        fs.writeFile(this.#path, JSON.stringify(this.#database), {encoding: 'utf8'}, (err) => console.log(err))
+        fs.writeFile(this.#path, JSON.stringify(this.#database), {encoding: 'utf8'}, () => {})
     }
 
     read(table, search) {

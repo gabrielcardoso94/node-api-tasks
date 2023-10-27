@@ -8,3 +8,12 @@ services:
       - "3333:3333"
     volumes:
       - .:/home/node/app
+
+  frontend:
+    build: ./src/frontend
+    ports:
+      - "3334:3334"
+    volumes:
+      - ./src/frontend:/home/node/frontapp
+    depends_on:
+      - "app"
